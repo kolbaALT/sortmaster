@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="bi bi-bar-chart"></i> Сравнение алгоритмов сортировки</h2>
+        <p class="lead">Сравни характеристики всех алгоритмов в одной таблице</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>📊 Таблица сравнения</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Алгоритм</th>
+                                <th>Сложность (лучшая)</th>
+                                <th>Сложность (средняя)</th>
+                                <th>Сложность (худшая)</th>
+                                <th>Память</th>
+                                <th>Стабильный</th>
+                                <th>Сложность</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for algorithm in algorithms %}
+                            <tr>
+                                <td>
+                                    <strong>{{ algorithm.name }}</strong><br>
+                                    <small class="text-muted">{{ algorithm.name_en }}</small>
+                                </td>
+                                <td><code>{{ algorithm.complexity_best }}</code></td>
+                                <td><code>{{ algorithm.complexity_average }}</code></td>
+                                <td><code>{{ algorithm.complexity_worst }}</code></td>
+                                <td><code>{{ algorithm.space_complexity }}</code></td>
+                                <td>
+                                    {% if algorithm.is_stable %}
+                                        <span class="badge bg-success">✅ Да</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">❌ Нет</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-{% if algorithm.difficulty_level == 1 %}success{% elif algorithm.difficulty_level == 2 %}warning{% else %}danger{% endif %}">
+                                        {% if algorithm.difficulty_level == 1 %}Легкий{% elif algorithm.difficulty_level == 2 %}Средний{% else %}Сложный{% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'algorithms:detail' algorithm.id %}" class="btn btn-outline-primary">
+                                            <i class="bi bi-book"></i>
+                                        </a>
+                                        <a href="{% url 'algorithms:simulator' algorithm.id %}" class="btn btn-outline-success">
+                                            <i class="bi bi-play-circle"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>💡 Когда использовать</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2"><strong>Пузырьковая:</strong> Обучение, очень маленькие массивы</li>
+                    <li class="mb-2"><strong>Выбором:</strong> Когда важна простота реализации</li>
+                    <li class="mb-2"><strong>Вставками:</strong> Почти отсортированные данные</li>
+                    <li class="mb-2"><strong>Слиянием:</strong> Когда нужна стабильность</li>
+                    <li class="mb-2"><strong>Быстрая:</strong> Общего назначения, быстрая</li>
+                    <li class="mb-2"><strong>Пирамидальная:</strong> Когда важна память</li>
+                    <li class="mb-2"><strong>Подсчетом:</strong> Целые числа в диапазоне</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>🎯 Рекомендации</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success">
+                    <h6>🟢 Для начинающих:</h6>
+                    <p>Начни с изучения пузырьковой, выбором и вставками</p>
+                </div>
+                <div class="alert alert-warning">
+                    <h6>🟡 Для практики:</h6>
+                    <p>Изучи слиянием и быструю сортировку</p>
+                </div>
+                <div class="alert alert-danger">
+                    <h6>🔴 Для экспертов:</h6>
+                    <p>Освой пирамидальную и сортировку подсчетом</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12 text-center">
+        <a href="{% url 'algorithms:list' %}" class="btn btn-primary">
+            <i class="bi bi-arrow-left"></i> Вернуться к алгоритмам
+        </a>
+        <a href="{% url 'challenges:list' %}" class="btn btn-warning">
+            <i class="bi bi-trophy"></i> Попробовать челленджи
+        </a>
+    </div>
+</div>
+{% endblock %}

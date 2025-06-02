@@ -8,5 +8,6 @@ urlpatterns = [
     path('<int:algorithm_id>/', views.algorithm_detail, name='detail'),
     path('<int:algorithm_id>/simulator/', views.simulator, name='simulator'),
     path('comparison/', views.comparison, name='comparison'),
+    path('comparison/', views.algorithm_comparison, name='comparison'),
     path('api/save-simulation/', views.save_simulation, name='save_simulation'),
 ]

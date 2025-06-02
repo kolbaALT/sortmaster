@@ -108,3 +108,14 @@ def comparison(request):
         'algorithms': algorithms,
     }
     return render(request, 'algorithms/comparison.html', context)
+
+
+def algorithm_comparison(request):
+    """Страница сравнения алгоритмов"""
+    algorithms = Algorithm.objects.filter(is_active=True).order_by('order')
+
+    context = {
+        'title': 'Сравнение алгоритмов сортировки',
+        'algorithms': algorithms,
+    }
+    return render(request, 'algorithms/comparison.html', context)
