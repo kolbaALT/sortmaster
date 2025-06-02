@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3><i class="bi bi-cpu"></i> {{ algorithm.name }}</h3>
+                    <span class="badge bg-{% if algorithm.difficulty_level == 1 %}success{% elif algorithm.difficulty_level == 2 %}warning{% else %}danger{% endif %} fs-6">
+                        {% if algorithm.difficulty_level == 1 %}Легкий{% elif algorithm.difficulty_level == 2 %}Средний{% else %}Сложный{% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="lead">{{ algorithm.description|safe }}</p>
+
+                <h5>📊 Характеристики алгоритма</h5>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li><strong>Лучшая сложность:</strong> {{ algorithm.complexity_best }}</li>
+                            <li><strong>Средняя сложность:</strong> {{ algorithm.complexity_average }}</li>
+                            <li><strong>Худшая сложность:</strong> {{ algorithm.complexity_worst }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li><strong>Память:</strong> {{ algorithm.space_complexity }}</li>
+                            <li><strong>Стабильный:</strong> {% if algorithm.is_stable %}✅ Да{% else %}❌ Нет{% endif %}</li>
+                            <li><strong>Английское название:</strong> {{ algorithm.name_en }}</li>
+                        </ul>
+                    </div>
+                </div>
+
+                {% if user.is_authenticated and user_stats %}
+                <h5>📈 Твоя статистика</h5>
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <h6 class="text-primary">{{ user_stats.total_sessions }}</h6>
+                            <small>Всего сессий</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <h6 class="text-success">{{ user_stats.completed_sessions }}</h6>
+                            <small>Завершено</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <h6 class="text-warning">{{ user_stats.best_time|default:"-"|floatformat:2 }}{% if user_stats.best_time %}мс{% endif %}</h6>
+                            <small>Лучшее время</small>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="d-grid gap-2 d-md-flex">
+                    <a href="{% url 'algorithms:simulator' algorithm.id %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-play-circle"></i> Запустить симулятор
+                    </a>
+                    <a href="{% url 'algorithms:list' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> К списку алгоритмов
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Блок с реализацией на Python -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="bi bi-code-slash"></i> 🐍 Реализация на Python</h5>
+            </div>
+            <div class="card-body">
+                <pre><code class="python">{% if algorithm.name_en == "Bubble Sort" %}def bubble_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        # Флаг для оптимизации
+        swapped = False
+        for j in range(0, n - i - 1):
+            # Сравниваем соседние элементы
+            if arr[j] > arr[j + 1]:
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+                swapped = True
+        # Если обменов не было, массив уже отсортирован
+        if not swapped:
+            break
+    return arr
+
+# Пример использования
+numbers = [64, 34, 25, 12, 22, 11, 90]
+sorted_numbers = bubble_sort(numbers.copy())
+print(f"Исходный массив: {numbers}")
+print(f"Отсортированный: {sorted_numbers}"){% elif algorithm.name_en == "Selection Sort" %}def selection_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        # Находим минимальный элемент в оставшейся части
+        min_idx = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_idx]:
+                min_idx = j
+        # Меняем местами найденный минимальный элемент с первым
+        arr[i], arr[min_idx] = arr[min_idx], arr[i]
+    return arr
+
+# Пример использования
+numbers = [64, 34, 25, 12, 22, 11, 90]
+sorted_numbers = selection_sort(numbers.copy())
+print(f"Исходный массив: {numbers}")
+print(f"Отсортированный: {sorted_numbers}"){% elif algorithm.name_en == "Insertion Sort" %}def insertion_sort(arr):
+    for i in range(1, len(arr)):
+        key = arr[i]
+        j = i - 1
+        # Перемещаем элементы больше key на одну позицию вперед
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+
+# Пример использования
+numbers = [64, 34, 25, 12, 22, 11, 90]
+sorted_numbers = insertion_sort(numbers.copy())
+print(f"Исходный массив: {numbers}")
+print(f"Отсортированный: {sorted_numbers}"){% else %}# Реализация для {{ algorithm.name }} будет добавлена позже
+def {{ algorithm.name_en|lower|cut:" "|cut:"-" }}_sort(arr):
+    # TODO: Добавить реализацию
+    pass{% endif %}</code></pre>
+            </div>
+        </div>
+
+        <!-- Блок с реализацией на C++ -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="bi bi-code-slash"></i> ⚡ Реализация на C++</h5>
+            </div>
+            <div class="card-body">
+                <pre><code class="cpp">{% if algorithm.name_en == "Bubble Sort" %}#include <iostream>
+#include <vector>
+using namespace std;
+
+void bubbleSort(vector<int>& arr) {
+    int n = arr.size();
+    for (int i = 0; i < n; i++) {
+        bool swapped = false;
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                swap(arr[j], arr[j + 1]);
+                swapped = true;
+            }
+        }
+        if (!swapped) break;
+    }
+}
+
+int main() {
+    vector<int> numbers = {64, 34, 25, 12, 22, 11, 90};
+
+    cout << "Исходный массив: ";
+    for (int num : numbers) cout << num << " ";
+
+    bubbleSort(numbers);
+
+    cout << "\nОтсортированный: ";
+    for (int num : numbers) cout << num << " ";
+
+    return 0;
+}{% elif algorithm.name_en == "Selection Sort" %}#include <iostream>
+#include <vector>
+using namespace std;
+
+void selectionSort(vector<int>& arr) {
+    int n = arr.size();
+    for (int i = 0; i < n - 1; i++) {
+        int min_idx = i;
+        for (int j = i + 1; j < n; j++) {
+            if (arr[j] < arr[min_idx]) {
+                min_idx = j;
+            }
+        }
+        swap(arr[i], arr[min_idx]);
+    }
+}
+
+int main() {
+    vector<int> numbers = {64, 34, 25, 12, 22, 11, 90};
+
+    cout << "Исходный массив: ";
+    for (int num : numbers) cout << num << " ";
+
+    selectionSort(numbers);
+
+    cout << "\nОтсортированный: ";
+    for (int num : numbers) cout << num << " ";
+
+    return 0;
+}{% elif algorithm.name_en == "Insertion Sort" %}#include <iostream>
+#include <vector>
+using namespace std;
+
+void insertionSort(vector<int>& arr) {
+    int n = arr.size();
+    for (int i = 1; i < n; i++) {
+        int key = arr[i];
+        int j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+int main() {
+    vector<int> numbers = {64, 34, 25, 12, 22, 11, 90};
+
+    cout << "Исходный массив: ";
+    for (int num : numbers) cout << num << " ";
+
+    insertionSort(numbers);
+
+    cout << "\nОтсортированный: ";
+    for (int num : numbers) cout << num << " ";
+
+    return 0;
+}{% else %}// Реализация для {{ algorithm.name }} будет добавлена позже
+#include <iostream>
+#include <vector>
+using namespace std;
+
+void {{ algorithm.name_en|lower|cut:" "|cut:"-" }}Sort(vector<int>& arr) {
+    // TODO: Добавить реализацию
+}{% endif %}</code></pre>
+            </div>
+        </div>
+
+        <!-- Блок с объяснением работы -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="bi bi-lightbulb"></i> 📚 Как это работает</h5>
+            </div>
+            <div class="card-body">
+                {% if algorithm.name_en == "Bubble Sort" %}
+                <ol>
+                    <li><strong>Проход по массиву:</strong> Алгоритм проходит по массиву несколько раз</li>
+                    <li><strong>Сравнение соседей:</strong> На каждом проходе сравнивает соседние элементы</li>
+                    <li><strong>Обмен местами:</strong> Если элементы стоят в неправильном порядке, меняет их местами</li>
+                    <li><strong>Оптимизация:</strong> Если за проход не было обменов, массив уже отсортирован</li>
+                </ol>
+                {% elif algorithm.name_en == "Selection Sort" %}
+                <ol>
+                    <li><strong>Поиск минимума:</strong> Находит минимальный элемент в неотсортированной части</li>
+                    <li><strong>Обмен:</strong> Меняет его местами с первым элементом неотсортированной части</li>
+                    <li><strong>Повторение:</strong> Повторяет процесс для оставшейся части массива</li>
+                    <li><strong>Завершение:</strong> Продолжает до полной сортировки</li>
+                </ol>
+                {% elif algorithm.name_en == "Insertion Sort" %}
+                <ol>
+                    <li><strong>Взятие элемента:</strong> Берет следующий элемент из неотсортированной части</li>
+                    <li><strong>Поиск места:</strong> Находит правильное место в отсортированной части</li>
+                    <li><strong>Вставка:</strong> Вставляет элемент в найденное место</li>
+                    <li><strong>Повторение:</strong> Повторяет для всех оставшихся элементов</li>
+                </ol>
+                {% else %}
+                <p>Подробное объяснение работы алгоритма {{ algorithm.name }} будет добавлено позже.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-lightbulb"></i> Полезные советы</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">🎯 Сначала изучи теорию</li>
+                    <li class="mb-2">👀 Внимательно следи за каждым шагом</li>
+                    <li class="mb-2">🔄 Попробуй разные размеры массивов</li>
+                    <li class="mb-2">⏱️ Засекай время выполнения</li>
+                    <li class="mb-2">🏆 Соревнуйся с друзьями</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5><i class="bi bi-question-circle"></i> Что дальше?</h5>
+            </div>
+            <div class="card-body">
+                <p>После изучения этого алгоритма:</p>
+                <a href="{% url 'challenges:list' %}" class="btn btn-warning btn-sm mb-2 d-block">
+                    <i class="bi bi-trophy"></i> Пройди челлендж
+                </a>
+                <a href="{% url 'algorithms:comparison' %}" class="btn btn-info btn-sm d-block">
+                    <i class="bi bi-bar-chart"></i> Сравни алгоритмы
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

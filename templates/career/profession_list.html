@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="bi bi-briefcase"></i> IT-профессии</h2>
+        <p class="lead">Узнай, где пригодятся знания алгоритмов в карьере</p>
+    </div>
+</div>
+
+{% if popular_professions %}
+<div class="row mb-5">
+    <div class="col-12">
+        <h4 class="mb-3">⭐ Популярные профессии</h4>
+    </div>
+    {% for profession in popular_professions %}
+    <div class="col-md-6 col-lg-4 mb-3">
+        <div class="card h-100 border-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="card-title">{{ profession.title }}</h5>
+                    <span class="badge bg-{% if profession.experience_level == 'junior' %}success{% elif profession.experience_level == 'middle' %}warning{% else %}danger{% endif %}">
+                        {{ profession.get_experience_level_display }}
+                    </span>
+                </div>
+
+                <p class="card-text">{{ profession.description|truncatewords:15|striptags }}</p>
+
+                {% if profession.salary_min and profession.salary_max %}
+                <div class="mb-3">
+                    <small class="text-success">
+                        <i class="bi bi-currency-dollar"></i>
+                        {{ profession.salary_min|floatformat:0 }} - {{ profession.salary_max|floatformat:0 }} руб/мес
+                    </small>
+                </div>
+                {% endif %}
+
+                <div class="d-grid">
+                    <a href="{% url 'career:profession_detail' profession.slug %}" class="btn btn-info">
+                        <i class="bi bi-info-circle"></i> Подробнее
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-lg-8">
+        {% if professions %}
+        <h4 class="mb-3">💼 Все профессии</h4>
+        <div class="row">
+            {% for profession in professions %}
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">{{ profession.title }}</h6>
+                        <p class="card-text small">{{ profession.description|truncatewords:10|striptags }}</p>
+                        <a href="{% url 'career:profession_detail' profession.slug %}" class="btn btn-outline-info btn-sm">
+                            Узнать больше
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <h4>💼 Профессии скоро появятся!</h4>
+            <p>Мы готовим подробную информацию о IT-карьере</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-map"></i> Карьерная навигация</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'career:interview_list' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-chat-dots"></i> Интервью с экспертами
+                    </a>
+                    <a href="{% url 'career:education_path_list' %}" class="btn btn-outline-success">
+                        <i class="bi bi-book"></i> Образовательные пути
+                    </a>
+                    <a href="{% url 'career:job_vacancies' %}" class="btn btn-outline-warning">
+                        <i class="bi bi-search"></i> Актуальные вакансии
+                    </a>
+                    <a href="{% url 'career:roadmap' %}" class="btn btn-outline-info">
+                        <i class="bi bi-diagram-3"></i> Карьерная карта
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5><i class="bi bi-lightbulb"></i> Совет дня</h5>
+            </div>
+            <div class="card-body">
+                <p class="small">
+                    💡 Начни с изучения базовых алгоритмов сортировки - они используются
+                    практически во всех IT-профессиях!
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="bi bi-globe"></i> Алгоритмы вокруг нас</h2>
+        <p class="lead">Узнай, где используется сортировка в реальной жизни</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        {% if page_obj %}
+            <div class="row">
+                {% for article in page_obj %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        {% if article.featured_image %}
+                        <img src="{{ article.featured_image.url }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ article.title }}</h5>
+                            <p class="card-text">{{ article.excerpt }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="bi bi-clock"></i> {{ article.reading_time }} мин чтения
+                                </small>
+                                <small class="text-muted">
+                                    <i class="bi bi-eye"></i> {{ article.views_count }}
+                                </small>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'content:article_detail' article.slug %}" class="btn btn-success btn-sm">
+                                Читать далее
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+        <div class="alert alert-info text-center">
+            <h4>📚 Статьи скоро появятся!</h4>
+            <p>Мы готовим интересные материалы о применении алгоритмов</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-star"></i> Популярные темы</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">📱 Алгоритмы в соцсетях</li>
+                    <li class="mb-2">🔍 Поиск в интернете</li>
+                    <li class="mb-2">🎮 Сортировка в играх</li>
+                    <li class="mb-2">🛒 Рекомендации товаров</li>
+                    <li class="mb-2">📺 Лента YouTube</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

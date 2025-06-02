@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto text-center">
+        <h2><i class="bi bi-chat-dots"></i> Интервью с IT-специалистами</h2>
+        <div class="alert alert-info mt-4">
+            <h4>🎤 Скоро здесь появятся интервью!</h4>
+            <p>Мы готовим беседы с опытными разработчиками о том, как алгоритмы помогают в работе</p>
+            <a href="{% url 'career:profession_list' %}" class="btn btn-primary">
+                Вернуться к профессиям
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

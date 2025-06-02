@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <h2 class="mb-4"><i class="bi bi-trophy"></i> Рейтинг пользователей</h2>
+
+        <div class="card">
+            <div class="card-body">
+                {% if top_users %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Место</th>
+                                    <th>Пользователь</th>
+                                    <th>Очки</th>
+                                    <th>Обновлено</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rating in top_users %}
+                                <tr {% if rating.user == user %}class="table-primary"{% endif %}>
+                                    <td>
+                                        {% if rating.position <= 3 %}
+                                            {% if rating.position == 1 %}🥇{% elif rating.position == 2 %}🥈{% else %}🥉{% endif %}
+                                        {% endif %}
+                                        {{ rating.position }}
+                                    </td>
+                                    <td>
+                                        {% if rating.user.avatar %}
+                                            <img src="{{ rating.user.avatar.url }}" class="rounded-circle me-2" width="30" height="30">
+                                        {% endif %}
+                                        {{ rating.user.first_name|default:rating.user.username }}
+                                    </td>
+                                    <td><strong>{{ rating.rating_points }}</strong></td>
+                                    <td class="text-muted">{{ rating.updated_at|date:"d.m.Y" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-center text-muted">Рейтинг пока пуст. Будь первым!</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <a href="{% url 'challenges:list' %}" class="btn btn-primary">
+                <i class="bi bi-trophy"></i> Участвовать в челленджах
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

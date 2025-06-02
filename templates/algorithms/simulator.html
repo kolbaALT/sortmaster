@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2><i class="bi bi-play-circle"></i> Симулятор: {{ algorithm.name }}</h2>
+            <a href="{% url 'algorithms:detail' algorithm.id %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Назад
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>🎮 Интерактивная визуализация</h5>
+            </div>
+            <div class="card-body">
+                <!-- Контейнер для визуализации -->
+                <div id="simulator-container"></div>
+
+                <!-- CSRF токен для AJAX запросов -->
+                {% csrf_token %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-gear"></i> Настройки</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="arraySize" class="form-label">Размер массива</label>
+                    <input type="range" class="form-range" id="arraySize" min="5" max="50" value="15">
+                    <div class="d-flex justify-content-between">
+                        <small>5</small>
+                        <small id="arraySizeValue">15</small>
+                        <small>50</small>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="speed" class="form-label">Скорость анимации</label>
+                    <select class="form-select" id="speed">
+                        <option value="slow">Медленно</option>
+                        <option value="normal" selected>Нормально</option>
+                        <option value="fast">Быстро</option>
+                    </select>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button class="btn btn-success" id="startBtn">
+                        <i class="bi bi-play"></i> Запустить
+                    </button>
+                    <button class="btn btn-warning" id="pauseBtn" disabled>
+                        <i class="bi bi-pause"></i> Пауза
+                    </button>
+                    <button class="btn btn-secondary" id="resetBtn">
+                        <i class="bi bi-arrow-clockwise"></i> Новый массив
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5><i class="bi bi-bar-chart"></i> Статистика</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <h6 class="text-primary" id="comparisons">0</h6>
+                        <small>Сравнений</small>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="text-success" id="swaps">0</h6>
+                        <small>Обменов</small>
+                    </div>
+                </div>
+                <div class="row text-center mt-2">
+                    <div class="col-6">
+                        <h6 class="text-warning" id="steps">0</h6>
+                        <small>Шагов</small>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="text-info" id="time">0</h6>
+                        <small>Время (мс)</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5><i class="bi bi-lightbulb"></i> Как пользоваться</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled small">
+                    <li class="mb-2">🎯 <strong>Настрой размер</strong> массива (5-50 элементов)</li>
+                    <li class="mb-2">⚡ <strong>Выбери скорость</strong> анимации</li>
+                    <li class="mb-2">▶️ <strong>Нажми "Запустить"</strong> для начала</li>
+                    <li class="mb-2">⏸️ <strong>Используй "Пауза"</strong> для остановки</li>
+                    <li class="mb-2">🔄 <strong>"Новый массив"</strong> для сброса</li>
+                </ul>
+
+                <div class="mt-3">
+                    <h6>Цвета:</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge" style="background: #007bff;">Обычный</span>
+                        <span class="badge" style="background: #ffc107; color: #000;">Сравнение</span>
+                        <span class="badge" style="background: #dc3545;">Выбранный</span>
+                        <span class="badge" style="background: #28a745;">Отсортирован</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/sortvis.js' %}"></script>
+<script>
+// Глобальная переменная для передачи ID алгоритма
+window.algorithmId = {{ algorithm.id }};
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация визуализатора
+    visualizer = new SortVisualizer('simulator-container', '{{ algorithm.name_en }}');
+
+    // Генерируем начальный массив
+    const initialSize = parseInt(document.getElementById('arraySize').value);
+    visualizer.generateArray(initialSize);
+
+    // Обработчики событий
+    document.getElementById('arraySize').addEventListener('input', function() {
+        document.getElementById('arraySizeValue').textContent = this.value;
+        if (!visualizer.isRunning) {
+            visualizer.generateArray(parseInt(this.value));
+        }
+    });
+
+    document.getElementById('speed').addEventListener('change', function() {
+        visualizer.setSpeed(this.value);
+    });
+
+    document.getElementById('startBtn').addEventListener('click', async function() {
+        if (visualizer.isRunning) return;
+
+        this.disabled = true;
+        this.innerHTML = '<i class="bi bi-hourglass-split"></i> Выполняется...';
+        document.getElementById('pauseBtn').disabled = false;
+
+        await visualizer.start();
+
+        this.disabled = false;
+        this.innerHTML = '<i class="bi bi-play"></i> Запустить';
+        document.getElementById('pauseBtn').disabled = true;
+        document.getElementById('pauseBtn').innerHTML = '<i class="bi bi-pause"></i> Пауза';
+
+        // Показываем уведомление о завершении
+        showNotification('Сортировка завершена!', 'success');
+    });
+
+    document.getElementById('pauseBtn').addEventListener('click', function() {
+        visualizer.pause();
+        if (visualizer.isPaused) {
+            this.innerHTML = '<i class="bi bi-play"></i> Продолжить';
+            this.classList.remove('btn-warning');
+            this.classList.add('btn-info');
+        } else {
+            this.innerHTML = '<i class="bi bi-pause"></i> Пауза';
+            this.classList.remove('btn-info');
+            this.classList.add('btn-warning');
+        }
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', function() {
+        visualizer.reset();
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('startBtn').innerHTML = '<i class="bi bi-play"></i> Запустить';
+        document.getElementById('pauseBtn').disabled = true;
+        document.getElementById('pauseBtn').innerHTML = '<i class="bi bi-pause"></i> Пауза';
+        document.getElementById('pauseBtn').classList.remove('btn-info');
+        document.getElementById('pauseBtn').classList.add('btn-warning');
+    });
+});
+
+// Функция для показа уведомлений
+function showNotification(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    document.body.appendChild(alertDiv);
+
+    // Автоматически убираем через 3 секунды
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 3000);
+}
+</script>
+{% endblock %}

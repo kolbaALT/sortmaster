@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto text-center">
+        <h2><i class="bi bi-search"></i> Актуальные вакансии</h2>
+        <div class="alert alert-info mt-4">
+            <h4>💼 Скоро здесь появятся вакансии!</h4>
+            <p>Актуальные предложения работы для IT-специалистов</p>
+            <a href="{% url 'career:profession_list' %}" class="btn btn-primary">
+                Вернуться к профессиям
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

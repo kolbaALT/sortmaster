@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <article class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h1 class="h3 mb-2">{{ article.title }}</h1>
+                        <div class="text-muted">
+                            <small>
+                                <i class="bi bi-person"></i> {{ article.author.get_full_name|default:article.author.username }}
+                                <span class="mx-2">•</span>
+                                <i class="bi bi-calendar"></i> {{ article.created_at|date:"d.m.Y" }}
+                                <span class="mx-2">•</span>
+                                <i class="bi bi-clock"></i> {{ article.reading_time }} мин чтения
+                                <span class="mx-2">•</span>
+                                <i class="bi bi-eye"></i> {{ article.views_count }} просмотров
+                            </small>
+                        </div>
+                    </div>
+                    <span class="badge bg-primary">{{ article.category.name }}</span>
+                </div>
+            </div>
+
+            {% if article.featured_image %}
+            <img src="{{ article.featured_image.url }}" class="card-img-top" style="height: 300px; object-fit: cover;" alt="{{ article.title }}">
+            {% endif %}
+
+            <div class="card-body">
+                <div class="lead mb-4">
+                    {{ article.excerpt }}
+                </div>
+
+                <div class="article-content">
+                    {{ article.content|safe }}
+                </div>
+
+                {% if article.tags %}
+                <div class="mt-4">
+                    <h6>🏷️ Теги:</h6>
+                    {% for tag in article.tags.all %}
+                        <span class="badge bg-secondary me-1">{{ tag.name }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="mt-4 pt-3 border-top">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6>Понравилась статья?</h6>
+                            <button class="btn btn-outline-success btn-sm me-2">
+                                <i class="bi bi-hand-thumbs-up"></i> Полезно
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-share"></i> Поделиться
+                            </button>
+                        </div>
+                        <div class="text-muted">
+                            <small>Обновлено: {{ article.updated_at|date:"d.m.Y" }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- Навигация между статьями -->
+        <div class="row mt-4">
+            <div class="col-6">
+                {% if previous_article %}
+                <a href="{% url 'content:article_detail' previous_article.slug %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Предыдущая статья
+                </a>
+                {% endif %}
+            </div>
+            <div class="col-6 text-end">
+                {% if next_article %}
+                <a href="{% url 'content:article_detail' next_article.slug %}" class="btn btn-outline-secondary">
+                    Следующая статья <i class="bi bi-arrow-right"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Информация об авторе -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-person-circle"></i> Об авторе</h5>
+            </div>
+            <div class="card-body">
+                <h6>{{ article.author.get_full_name|default:article.author.username }}</h6>
+                <p class="text-muted small">
+                    {% if article.author.date_joined %}
+                        На сайте с {{ article.author.date_joined|date:"M Y" }}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Похожие статьи -->
+        {% if related_articles %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5><i class="bi bi-collection"></i> Похожие статьи</h5>
+            </div>
+            <div class="card-body">
+                {% for related in related_articles %}
+                <div class="mb-3">
+                    <h6 class="mb-1">
+                        <a href="{% url 'content:article_detail' related.slug %}" class="text-decoration-none">
+                            {{ related.title }}
+                        </a>
+                    </h6>
+                    <small class="text-muted">
+                        <i class="bi bi-clock"></i> {{ related.reading_time }} мин
+                        <span class="mx-1">•</span>
+                        <i class="bi bi-eye"></i> {{ related.views_count }}
+                    </small>
+                </div>
+                {% if not forloop.last %}<hr class="my-2">{% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Категории -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5><i class="bi bi-folder"></i> Категории</h5>
+            </div>
+            <div class="card-body">
+                <a href="{% url 'content:category_detail' article.category.slug %}" class="btn btn-outline-primary btn-sm">
+                    {{ article.category.name }}
+                </a>
+            </div>
+        </div>
+
+        <!-- Навигация -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5><i class="bi bi-arrow-left-circle"></i> Навигация</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'content:article_list' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-list"></i> Все статьи
+                    </a>
+                    <a href="{% url 'algorithms:list' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-cpu"></i> Изучать алгоритмы
+                    </a>
+                    <a href="{% url 'challenges:list' %}" class="btn btn-outline-warning">
+                        <i class="bi bi-trophy"></i> Челленджи
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .article-content {
+        font-size: 1.1rem;
+        line-height: 1.7;
+    }
+
+    .article-content h3 {
+        color: #0d6efd;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .article-content h4 {
+        color: #6f42c1;
+        margin-top: 1.5rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .article-content ul, .article-content ol {
+        margin-bottom: 1.5rem;
+    }
+
+    .article-content li {
+        margin-bottom: 0.5rem;
+    }
+
+    .article-content pre {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1rem;
+        overflow-x: auto;
+        margin: 1.5rem 0;
+    }
+
+    .article-content code {
+        background-color: #f8f9fa;
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
+
+    .article-content pre code {
+        background-color: transparent;
+        padding: 0;
+    }
+</style>
+{% endblock %}

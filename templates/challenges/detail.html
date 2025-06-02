@@ -1,0 +1,377 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3><i class="bi bi-trophy"></i> {{ challenge.title }}</h3>
+                    <span class="badge bg-{% if challenge.difficulty == 1 %}success{% elif challenge.difficulty == 2 %}warning{% elif challenge.difficulty == 3 %}orange{% else %}danger{% endif %} fs-6">
+                        {{ challenge.get_difficulty_display }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="lead">{{ challenge.description }}</p>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-clock"></i> Время на выполнение</h6>
+                        <p>{% if challenge.time_limit %}{{ challenge.time_limit }} секунд{% else %}Без ограничений{% endif %}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-star"></i> Максимальные очки</h6>
+                        <p>{{ challenge.max_score }} очков</p>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h6><i class="bi bi-list-check"></i> Инструкции</h6>
+                    <div class="bg-light p-3 rounded">
+                        {% for instruction in challenge.instructions.splitlines %}
+                            <p class="mb-2">{{ instruction }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% if user.is_authenticated %}
+                    {% if challenge.challenge_type == 'speed_test' %}
+                        <div class="alert alert-info">
+                            <h6><i class="bi bi-info-circle"></i> Как выполнить челлендж:</h6>
+                            <ol class="mb-0">
+                                <li>Выбери алгоритм из списка ниже</li>
+                                <li>Запусти симуляцию и засеки время</li>
+                                <li>Попробуй другие алгоритмы</li>
+                                <li>Нажми "Завершить челлендж" когда найдешь самый быстрый</li>
+                            </ol>
+                        </div>
+
+                        <!-- Список алгоритмов для тестирования -->
+                        <div class="row" id="algorithms-list">
+                            <div class="col-12">
+                                <h6>Выбери алгоритм для тестирования:</h6>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <button class="btn btn-outline-primary w-100" onclick="testAlgorithm('Bubble Sort', 1)">
+                                    🫧 Пузырьковая сортировка
+                                </button>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <button class="btn btn-outline-primary w-100" onclick="testAlgorithm('Selection Sort', 2)">
+                                    🎯 Сортировка выбором
+                                </button>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <button class="btn btn-outline-primary w-100" onclick="testAlgorithm('Insertion Sort', 3)">
+                                    📝 Сортировка вставками
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Результаты тестирования -->
+                        <div class="mt-4" id="results-section" style="display: none;">
+                            <h6>📊 Результаты тестирования:</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Алгоритм</th>
+                                            <th>Время (мс)</th>
+                                            <th>Сравнения</th>
+                                            <th>Обмены</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="results-table">
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="mt-3">
+                                <label for="fastest-algorithm" class="form-label">Какой алгоритм оказался самым быстрым?</label>
+                                <select class="form-select" id="fastest-algorithm">
+                                    <option value="">Выбери алгоритм</option>
+                                    <option value="Bubble Sort">Пузырьковая сортировка</option>
+                                    <option value="Selection Sort">Сортировка выбором</option>
+                                    <option value="Insertion Sort">Сортировка вставками</option>
+                                </select>
+                            </div>
+
+                            <button class="btn btn-success mt-3" onclick="submitChallenge()">
+                                <i class="bi bi-check-circle"></i> Завершить челлендж
+                            </button>
+                        </div>
+
+                    {% else %}
+                        <div class="alert alert-info text-center">
+                            <h5>🚧 Этот тип челленджа пока в разработке</h5>
+                            <p>Скоро здесь появится интерактивность!</p>
+                            <a href="{% url 'challenges:list' %}" class="btn btn-primary">
+                                <i class="bi bi-arrow-left"></i> Вернуться к списку
+                            </a>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-warning text-center">
+                        <h6>Войди в систему, чтобы участвовать в челленджах!</h6>
+                        <a href="{% url 'account_login' %}" class="btn btn-primary">Войти</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        {% if user.is_authenticated and user_attempts %}
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-clock-history"></i> Твои попытки</h5>
+            </div>
+            <div class="card-body">
+                {% for attempt in user_attempts|slice:":5" %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>Попытка {{ attempt.attempts_count }}</span>
+                    <span class="badge bg-{% if attempt.completed %}success{% else %}secondary{% endif %}">
+                        {{ attempt.score }} очков
+                    </span>
+                </div>
+                {% endfor %}
+
+                {% if best_attempt %}
+                <hr>
+                <div class="text-center">
+                    <h6 class="text-success">🏆 Лучший результат</h6>
+                    <h4 class="text-primary">{{ best_attempt.score }} очков</h4>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5><i class="bi bi-lightbulb"></i> Подсказки</h5>
+            </div>
+            <div class="card-body">
+                {% if challenge.challenge_type == 'speed_test' %}
+                <ul class="list-unstyled">
+                    <li class="mb-2">💡 Попробуй разные размеры массивов</li>
+                    <li class="mb-2">⏱️ Обрати внимание на время выполнения</li>
+                    <li class="mb-2">📊 Сравни количество операций</li>
+                    <li class="mb-2">🎯 Помни о сложности алгоритмов</li>
+                </ul>
+                {% else %}
+                <p>Внимательно читай инструкции и не торопись!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для симулятора -->
+<div class="modal fade" id="simulatorModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Тестирование: <span id="current-algorithm"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-simulator-container"></div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <label for="modal-arraySize" class="form-label">Размер массива: <span id="modal-arraySizeValue">20</span></label>
+                        <input type="range" class="form-range" id="modal-arraySize" min="10" max="30" value="20">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="modal-speed" class="form-label">Скорость</label>
+                        <select class="form-select" id="modal-speed">
+                            <option value="fast" selected>Быстро</option>
+                            <option value="normal">Нормально</option>
+                            <option value="slow">Медленно</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <button class="btn btn-success" id="modal-startBtn">Запустить</button>
+                    <button class="btn btn-secondary" id="modal-resetBtn">Сброс</button>
+                </div>
+
+                <!-- Статистика -->
+                <div class="row mt-3 text-center">
+                    <div class="col-3">
+                        <h6 class="text-primary" id="modal-comparisons">0</h6>
+                        <small>Сравнений</small>
+                    </div>
+                    <div class="col-3">
+                        <h6 class="text-success" id="modal-swaps">0</h6>
+                        <small>Обменов</small>
+                    </div>
+                    <div class="col-3">
+                        <h6 class="text-warning" id="modal-steps">0</h6>
+                        <small>Шагов</small>
+                    </div>
+                    <div class="col-3">
+                        <h6 class="text-info" id="modal-time">0</h6>
+                        <small>Время (мс)</small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveTestResult()">Сохранить результат</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% csrf_token %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/sortvis.js' %}"></script>
+<script>
+let modalVisualizer = null;
+let currentAlgorithmId = null;
+let testResults = [];
+
+function testAlgorithm(algorithmName, algorithmId) {
+    currentAlgorithmId = algorithmId;
+    document.getElementById('current-algorithm').textContent = algorithmName;
+
+    // Инициализируем визуализатор в модальном окне
+    modalVisualizer = new SortVisualizer('modal-simulator-container', algorithmName);
+    modalVisualizer.generateArray(20);
+
+    // Показываем модальное окно
+    const modal = new bootstrap.Modal(document.getElementById('simulatorModal'));
+    modal.show();
+
+    // Настраиваем обработчики для модального окна
+    setupModalHandlers();
+}
+
+function setupModalHandlers() {
+    document.getElementById('modal-arraySize').addEventListener('input', function() {
+        document.getElementById('modal-arraySizeValue').textContent = this.value;
+        if (modalVisualizer && !modalVisualizer.isRunning) {
+            modalVisualizer.generateArray(parseInt(this.value));
+        }
+    });
+
+    document.getElementById('modal-speed').addEventListener('change', function() {
+        if (modalVisualizer) {
+            modalVisualizer.setSpeed(this.value);
+        }
+    });
+
+    document.getElementById('modal-startBtn').addEventListener('click', async function() {
+        if (!modalVisualizer || modalVisualizer.isRunning) return;
+
+        this.disabled = true;
+        this.textContent = 'Выполняется...';
+
+        await modalVisualizer.start();
+
+        this.disabled = false;
+        this.textContent = 'Запустить';
+    });
+
+    document.getElementById('modal-resetBtn').addEventListener('click', function() {
+        if (modalVisualizer) {
+            modalVisualizer.reset();
+        }
+    });
+}
+
+function saveTestResult() {
+    if (!modalVisualizer || !modalVisualizer.stats.startTime) {
+        alert('Сначала запустите симуляцию!');
+        return;
+    }
+
+    const result = {
+        algorithm: document.getElementById('current-algorithm').textContent,
+        time: modalVisualizer.stats.startTime ? Date.now() - modalVisualizer.stats.startTime : 0,
+        comparisons: modalVisualizer.stats.comparisons,
+        swaps: modalVisualizer.stats.swaps
+    };
+
+    testResults.push(result);
+    updateResultsTable();
+
+    // Закрываем модальное окно
+    bootstrap.Modal.getInstance(document.getElementById('simulatorModal')).hide();
+}
+
+function updateResultsTable() {
+    const tbody = document.getElementById('results-table');
+    tbody.innerHTML = '';
+
+    testResults.forEach(result => {
+        const row = tbody.insertRow();
+        row.innerHTML = `
+            <td>${result.algorithm}</td>
+            <td>${result.time}</td>
+            <td>${result.comparisons}</td>
+            <td>${result.swaps}</td>
+        `;
+    });
+
+    document.getElementById('results-section').style.display = 'block';
+}
+
+async function submitChallenge() {
+    const selectedAlgorithm = document.getElementById('fastest-algorithm').value;
+
+    if (!selectedAlgorithm) {
+        alert('Выбери самый быстрый алгоритм!');
+        return;
+    }
+
+    if (testResults.length < 2) {
+        alert('Протестируй хотя бы 2 алгоритма!');
+        return;
+    }
+
+    // Определяем правильный ответ
+    const fastestResult = testResults.reduce((min, current) =>
+        current.time < min.time ? current : min
+    );
+
+    const isCorrect = selectedAlgorithm === fastestResult.algorithm;
+    const score = isCorrect ? {{ challenge.max_score }} : Math.floor({{ challenge.max_score }} * 0.5);
+
+    // Отправляем результат на сервер
+    try {
+        const response = await fetch('{% url "challenges:submit_challenge" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({
+                challenge_id: {{ challenge.id }},
+                score: score,
+                completed: true,
+                answer_data: {
+                    selected_algorithm: selectedAlgorithm,
+                    fastest_algorithm: fastestResult.algorithm,
+                    test_results: testResults
+                }
+            })
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            alert(`Челлендж завершен! Ты получил ${score} очков!`);
+            location.reload();
+        }
+    } catch (error) {
+        console.error('Ошибка отправки результата:', error);
+        alert('Ошибка при сохранении результата');
+    }
+}
+</script>
+{% endblock %}

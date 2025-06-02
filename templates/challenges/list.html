@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="bi bi-trophy"></i> Челлендж-зона</h2>
+        <p class="lead">Проверь свои знания в играх и соревнованиях!</p>
+    </div>
+</div>
+
+{% if challenges_by_difficulty %}
+    {% for difficulty, challenges in challenges_by_difficulty.items %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3">
+                {% if difficulty == "Новичок" %}🟢{% elif difficulty == "Любитель" %}🟡{% elif difficulty == "Профессионал" %}🟠{% else %}🔴{% endif %}
+                {{ difficulty }}
+            </h4>
+        </div>
+        {% for challenge in challenges %}
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title">{{ challenge.title }}</h5>
+                        <span class="badge bg-primary">{{ challenge.max_score }} очков</span>
+                    </div>
+
+                    <p class="card-text">{{ challenge.description|truncatewords:15 }}</p>
+
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <i class="bi bi-clock"></i>
+                            {% if challenge.time_limit %}{{ challenge.time_limit }} сек{% else %}Без ограничений{% endif %}
+                        </small>
+                    </div>
+
+                    <div class="d-grid">
+                        <a href="{% url 'challenges:detail' challenge.id %}" class="btn btn-warning">
+                            <i class="bi bi-play-circle"></i> Начать челлендж
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-info text-center">
+            <h4>🎮 Челленджи скоро появятся!</h4>
+            <p>Мы готовим интересные задания для тебя</p>
+            <a href="{% url 'algorithms:list' %}" class="btn btn-primary">
+                Пока изучай алгоритмы
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mt-5">
+    <div class="col-lg-8 mx-auto">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h4>🏆 Соревнуйся и побеждай!</h4>
+                <p>Участвуй в челленджах, зарабатывай очки и поднимайся в рейтинге</p>
+                <a href="{% url 'challenges:leaderboard' %}" class="btn btn-success">
+                    <i class="bi bi-list-ol"></i> Посмотреть рейтинг
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
