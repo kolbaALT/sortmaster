@@ -178,10 +178,10 @@ SECRET_KEY = config('SECRET_KEY', default=SECRET_KEY)
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Хосты для продакшена
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=lambda v: [s.strip() for s in v.split(',')])
+ALLOWED_HOSTS = ['*']  # Временно разрешаем все хосты
 
 # CSRF настройки
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=lambda v: [s.strip() for s in v.split(',') if s.strip()])
+CSRF_TRUSTED_ORIGINS = ['https://*.railway.app']
 
 # WhiteNoise для статических файлов
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
@@ -194,3 +194,4 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 if config('DATABASE_URL', default=None):
     import dj_database_url
     DATABASES['default'] = dj_database_url.parse(config('DATABASE_URL'))
+
