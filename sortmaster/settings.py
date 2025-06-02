@@ -170,6 +170,7 @@ STATICFILES_DIRS = [
 
 
 # Настройки для продакшена
+# Настройки для продакшена
 import os
 from decouple import config
 
@@ -177,11 +178,14 @@ from decouple import config
 SECRET_KEY = config('SECRET_KEY', default=SECRET_KEY)
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-# Хосты для продакшена
-ALLOWED_HOSTS = ['*']  # Временно разрешаем все хосты
+# Хосты для продакшена - разрешаем Railway домены
+ALLOWED_HOSTS = ['*']
 
 # CSRF настройки
-CSRF_TRUSTED_ORIGINS = ['https://*.railway.app']
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.railway.app',
+    'https://*.up.railway.app'
+]
 
 # WhiteNoise для статических файлов
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
@@ -194,4 +198,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 if config('DATABASE_URL', default=None):
     import dj_database_url
     DATABASES['default'] = dj_database_url.parse(config('DATABASE_URL'))
+
 
