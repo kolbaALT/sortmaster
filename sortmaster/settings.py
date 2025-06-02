@@ -14,6 +14,8 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+import _locale
+_locale._getdefaultlocale = (lambda *args: ['en_US', 'utf8'])
 
 
 # Quick-start development settings - unsuitable for production
@@ -157,8 +159,18 @@ AUTH_USER_MODEL = 'users.CustomUser'
 
 # Настройки для allauth
 ACCOUNT_EMAIL_VERIFICATION = 'none'
-ACCOUNT_EMAIL_REQUIRED = False
-ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+
+# Отключаем предупреждение о безопасности CKEditor
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'height': 300,
+        'width': '100%',
+        'versionCheck': False,  # Отключаем проверку версии
+    },
+}
+
 
 # Email backend для разработки (выводит письма в консоль)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

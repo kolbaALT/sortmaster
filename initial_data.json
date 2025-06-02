@@ -1,0 +1,94 @@
+[
+{
+  "model": "sites.site",
+  "pk": 1,
+  "fields": {
+    "domain": "example.com",
+    "name": "example.com"
+  }
+},
+{
+  "model": "account.emailaddress",
+  "pk": 1,
+  "fields": {
+    "user": 2,
+    "email": "igorugor@mail.com",
+    "verified": false,
+    "primary": true
+  }
+},
+{
+  "model": "users.customuser",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$mmk0vKA1IIMqzPWqT8E206$9pzKvYPhrUfO937i6Vno+LGKtG3yzZshpqpm3RDGJFE=",
+    "last_login": "2025-06-02T00:30:53.392Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-06-01T23:53:43.208Z",
+    "avatar": "",
+    "birth_date": null,
+    "bio": "",
+    "total_score": 0,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.customuser",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$F31jv9PnRF0EBYxjRgLfww$ND5l2AIqp4BYy/qIFDReI0f/L1VM5TcUxOhCF+InNXM=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "Igor",
+    "first_name": "",
+    "last_name": "",
+    "email": "igorugor@mail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-06-02T00:24:21.037Z",
+    "avatar": "",
+    "birth_date": null,
+    "bio": "",
+    "total_score": 0,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.customuser",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$FoafPKX4S1w2WOQOsSz5z4$pS6um7NNsUELq3tYFoqi2mY0AfPD5L4GAp8T/5EUPpc=",
+    "last_login": null,
+    "is_superuser": true,
+    "username": "Admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-06-02T05:06:12.533Z",
+    "avatar": "",
+    "birth_date": null,
+    "bio": "",
+    "total_score": 0,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "algorithms.algorithm",
+  "pk": 1,
+  "fields": {
+    "name": "ѕузырькова€ сортировка",
+    "name_en": "Bubble Sort",
+    "description": "ѕростейший алгоритм сортировки, который многократно проходит по списку, сравнивает соседние элементы и мен€ет их местами, если они сто€т в неправильном пор€дке.",
+    "complexity_best": "O(n)",
+    "complexity_average": 
